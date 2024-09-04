@@ -10,14 +10,31 @@ header {
 	padding: 15px 0;
 	text-align: center;
 }
-li {
-	width: 40%;
+#mainElement {
+	width: 100%;
 	margin: auto;
 }
-button {
-	margin: 0;
-	height: 100vh; /* Full height */
+#todoListDiv {
+	border-style: none solid solid solid;
+	width: 50%;
+	height: 600px;
+	bottom: 17px;
+	margin: auto;
+	position: relative;
+	text-align: left;
+	font-size: 24px;
 	display: flex;
-	align-items: center; /* Center vertically */
-	justify-content: flex-start; /* Align items to the left */
+}
+#todoUL {
+	list-style-type: none;
+}
+#addTodoButton{
+	position: relative;
+	left: 1350px;
+	padding: 10px 17px;
+	font-size: 30px;
+}
+.deleteButton {
+	position: fixed;
+	left: 1000px;
 }
