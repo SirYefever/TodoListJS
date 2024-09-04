@@ -41,27 +41,42 @@ function addTodo(){
 	//let name = window.promt("Enter the name: ", "Todo".concat(toStirng(todoCounter)));
 	let todo = new Todo(name, todoCounter);
 	todoList[todoList.length] = todo;
-	let li = "<li>" + name + "<button id=\"deleteButton" + todoCounter.toString() + "\" class=\"deleteButton\" onclick=\"remove(" + todoCounter.toString() + ")\">🗑️</button></li>";
+	let li = "<li id=\"li" + todoCounter.toString() + "\"><span id=\"span" + todoCounter.toString() + "\">" +
+				   name + "</span><button id=\"deleteButton" + todoCounter.toString() +
+					 "\" class=\"deleteButton\" onclick=\"remove(" + 
+					 todoCounter.toString() + ")\">🗑️</button><button id=\"redactButton" + todoCounter.toString() + "\" class=\"redactButton\" onclick=\"redact(" + todoCounter.toString() + ")\">✏️</button><input id=\"checkbox" +
+				   todoCounter.toString() +"\" type=\"checkbox\"";
+	//if (checked)
+	//li += "checked";
+	//doneCounter++;
+	//else
+	//li += ""
+	// Class atribute does not word fsr
+	li = li.concat(" class=\"checkBox\" onchange=\"updateDoneCounter();\"/></li>");
 	todoUL.insertAdjacentHTML("beforeend", li);
+}
+
+function redact(todoNumber) {
+	//let newName = window.promt("Enter the name: ", "Todo".concat(toStirng(todoCounter)));
+	let newName = "testing";
+	let elementToRename = todoList.find((element) => element.number === todoNumber);
+	elementToRename.name = newName;
+	let spanElementToRename = document.getElementById("span" + todoNumber.toString());
+	spanElementToRename.textContent = newName;
+}
+
+function updateDoneCounter() {
+	doneCounter = 0;
+	for (let i = 1; i < todoCounter; i++) {
+		if (document.getElementById("checkbox" + i.toString())) {
+			doneCounter++;
+		}
+	}
 }
 
 function remove(todoNumber) {
 	todoList.splice(todoList.find((element) => element.number === todoNumber));
-}
-// Try to rewrite function so it adds "onclick" property to a button which would call remove(number) funciton.
-
-function constructDeletionScript(todoCounter) {
-	result = "<script>" +
-					 "let indexToRemove = todoList.splice(todoList.find((element) => element.number === todoCounter));\n" +
-					 "todoList.splice(something);\n" + 
-				   "currentButton = document.getElementById(\"deleteButton" + todoCounter.toString() + "\");\n" +
-					 "currentButton.parentNode.remove();\n" + 
-					 "</script>"
-	return result;
-}
-
-function test() {
-	alert("TESING ALERT");
+	todoUL.removeChild(document.getElementById("li" + todoNumber.toString()));
 }
 
 let todoUL = document.getElementById("todoUL");

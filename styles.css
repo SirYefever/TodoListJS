@@ -38,3 +38,11 @@ header {
 	position: fixed;
 	left: 1000px;
 }
+redactButton {
+	position: fixed;
+	left: 1060;
+}
+.checkBox {
+	position: fixed;
+	left: 1040;
+}
