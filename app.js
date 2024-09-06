@@ -15,33 +15,24 @@ class Todo {
 	}
 
 	redactName(newName){
-		if (!newName === "") {
+		if (!(newName === "")) {
 			this.name = newName;
 		}
 	}
 } 
 
 function addTodoManually() {
-	// window.promt is not available in Node.js so for now we'll keep it simple way
-	let name = "Todo ".concat(todoIterator.toString());
-	//let name = window.promt("Enter the name: ", "Todo".concat(toStirng(todoIterator)));
+	let name = "Todo № ".concat(todoIterator.toString());
 	addTodo(name, false);
 }
 
 function addTodo(name, done){
 	todoIterator++;
 	todoCounter++;
-	// window.promt is not available in Node.js so for now we'll keep it simple way
 	let todo = new Todo(name, done);
 	todoList[todoList.length] = todo;
-	//<li id="li1">
-	//<span id="span1">Todo 0</span>
-	//<button id="deleteButton1" class="deleteButton" onclick="remove(1)">🗑️</button>
-	//<button id="redactButton1" class="redactButton" onclick="redact(1)">✏️</button>
-	//<input id="checkbox1" type="checkbox" class="checkBox" onchange="updateDoneCounter()">
-	//</li>
 	let constructSpan = function() {
-		return "<span id=\"span" + todoIterator.toString() + "\">" + name + "</span>";
+		return "<span id=\"span" + todoIterator.toString() + "\" class=\"spanCalss\">" + name + "</span>";
 	}
 	let constructDeleteButton = function() {
 		return "<button id=\"deleteButton" + todoIterator.toString() +
@@ -54,7 +45,7 @@ function addTodo(name, done){
 	}
 	let constructCheckbox = function() {
 		let result =  "<input id=\"checkbox" + todoIterator.toString() +
-					 "\" type=\"checkbox\" class=\"checkBox\" onchange=\"updateDoneCounter()\"";
+					 "\" type=\"checkbox\" class=\"checkBox\" onchange=\"manageCheckboxing(" + todoIterator + ")\"";
 		if (done) { 
 			result += " checked>";
 			doneCounter++;
@@ -64,30 +55,42 @@ function addTodo(name, done){
 		return result;
 	}
 	let constructLi = function() {
-		return "<li id=\"li" + todoIterator.toString() + "\">" + constructSpan() + 
-					 constructDeleteButton() + constructRedactButton() + constructCheckbox() +
-				   "</li>";
+		return "<li class=\"liClass\" id=\"li" + todoIterator.toString() + "\">" + 
+				  	constructCheckbox() + constructSpan() + 
+				    constructRedactButton() + constructDeleteButton() + "</li>";
 	}
 	let li = constructLi();
 	todoUL.insertAdjacentHTML("beforeend", li);
+	updateProgressBar();
 }
 
 function redact(todoNumber) {
-	//let newName = window.promt("Enter the name: ", "Todo".concat(toStirng(todoIterator)));
-	let newName = "testing";
+	let newName = window.prompt("Enter the name: ", "Todo".concat(todoIterator.toString()));
 	let elementToRename = todoList.find((element) => element.number === todoNumber);
 	elementToRename.redactName(newName);
 	let spanElementToRename = document.getElementById("span" + todoNumber.toString());
-	spanElementToRename.textContent = newName;
+	if (newName.length > 0) {
+		spanElementToRename.textContent = newName;
+	}
+}
+
+function manageCheckboxing(todoNumber) {
+	for (let i = 0; i < todoList.length; i++){
+		if (todoNumber === todoList[i].number) {
+			todoList[i].done = !todoList[i].done;
+		}
+	}
+	updateDoneCounter();
 }
 
 function updateDoneCounter() {
 	doneCounter = 0;
-	for (let i = 1; i < todoIterator; i++) {
-		if (document.getElementById("checkbox" + i.toString())) {
+	for (let i = 0; i < todoList.length; i++) {
+		if (todoList[i].done) {
 			doneCounter++;
 		}
 	}
+	updateProgressBar();
 }
 
 function remove(todoNumber) {
@@ -98,6 +101,7 @@ function remove(todoNumber) {
 			todoList.splice(i, 1);
 		}
 	}
+	updateProgressBar();
 	todoUL.removeChild(document.getElementById("li" + todoNumber.toString()));
 }
 
@@ -109,40 +113,23 @@ function parseInputFile() {
 	let reader = new FileReader();
 	reader.readAsText(importInput.files[0]);
 	reader.onload = function() {
-		var todoArray = JSON.parse(reader.result).todos;
+		var todoArray = JSON.parse(reader.result);
 		for (let i = 0; i < todoArray.length; i++) { 
 			addTodo(todoArray[i].name, todoArray[i].done);
-			todoIterator++;
-			todoCounter++;
 		}
 	}
+	updateProgressBar();
 }
 
-let todoUL = document.getElementById("todoUL");
-
-let addButton = document.getElementById("addTodoButton");
-addButton.addEventListener("click", () => addTodoManually());
-
-let importInput = document.getElementById("importInputID");
-importInput.addEventListener("change", () => {
-	if (importInput.files.length > 0) {
-		parseInputFile();
-	}
-})
-
-// To export we need:
-//	 1. Create .json file;
-//	 2. Fill .json file with info;
-//	 3. Save .json file on computer.
 function exportJson() {
-	download(JSON.stringify(todoList), "testing", "application/json");
+	download(JSON.stringify(todoList), "TodoList", "application/json");
 }
 
 //https://stackoverflow.com/questions/13405129/create-and-save-a-file-with-javascript
 // Function to download data to a file
 function download(data, filename, type) {
     var file = new Blob([data], {type: type});
-    if (window.navigator.msSaveOrOpenBlob) // IE10+
+    if (window.navigator.msSaveOrOpenBlob)
         window.navigator.msSaveOrOpenBlob(file, filename);
     else { // Others
         var a = document.createElement("a"),
@@ -157,4 +144,22 @@ function download(data, filename, type) {
         }, 0); 
     }
 }
+
+function updateProgressBar() {
+	let progressBar = document.getElementById("progressBar");
+	let percentage = doneCounter / todoCounter;
+	progressBar.value = percentage;
+}
+
+let todoUL = document.getElementById("todoUL");
+
+let addButton = document.getElementById("addTodoButton");
+addButton.addEventListener("click", () => addTodoManually());
+
+let importInput = document.getElementById("importInputID");
+importInput.addEventListener("change", () => {
+	if (importInput.files.length > 0) {
+		parseInputFile();
+	}
+})
 

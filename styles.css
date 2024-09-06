@@ -9,6 +9,7 @@ header {
 	color: #ffffff;
 	padding: 15px 0;
 	text-align: center;
+	font-family: "Quicksand", sans-serif;
 }
 #mainElement {
 	width: 100%;
@@ -18,27 +19,42 @@ header {
 	border-style: none solid solid solid;
 	width: 50%;
 	height: 700px;
-	bottom: 17px;
+	bottom: 0px;
 	margin: auto;
 	position: relative;
 	text-align: left;
-	font-size: 24px;
+	font-size: 32px;
 	display: flex;
 }
 #todoUL {
+	overflow-y: auto;
 	list-style-type: none;
+	width: 100%;
+}
+.liClass {
+	font-family: 'Rubik', sans-serif;
 }
 .deleteButton {
-	position: fixed;
-	left: 1000px;
+	position: relative;
+	width: 25px;
+	height: 25px;
+	left: 3%;
 }
-redactButton {
-	position: fixed;
-	left: 1060;
+.redactButton {
+	position: relative;
+	width: 25px;
+	height: 25px;
+	left: 3%;
 }
 .checkBox {
-	position: fixed;
-	left: 1040;
+	position: relative;
+	width: 23px;
+	height: 23px;
+	right: 3%;
+	top: 0px;
+}
+.spanClass {
+	position: relative;
 }
 #importButton {
 	margin-left: 29%;
@@ -51,8 +67,14 @@ redactButton {
 	height: 40px;
 }
 #addTodoButton{
+	margin-top: 1%;
 	margin-left: 5%;
 	padding: 10px 17px;
 	width: 200px;
 	height: 40px;
+}
+#progressBar {
+	margin-left: 35%;
+	top: 10px;
+	width: 30%;
 }
