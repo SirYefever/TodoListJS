@@ -89,63 +89,23 @@ let addButton = document.getElementById("addTodoButton");
 addButton.addEventListener("click", () => addTodo());
 
 let importInput = document.getElementById("importInputID");
-function readFile(event) { 
-	//console.log(event.target.result);
-	console.log("readFile() running");
-}
-function promptForFile() {
-	return new Promise((resolve, reject) => {
-		importInput.addEventListener('change', () => {
-			if (importInput.files.length > 0) {
-				resolve(importInput.files[0]);
-			} else {
-				reject("No file selected");
-			}
-		})
-	importInput.click();
-	})
-}
-function promptForJson(reader) {
-	var obj2;
-	obj2 = JSON.parse(reader.result);
-	console.log(typeof obj2);
-	return new Promise((resolve, reject) => {
-		if (typeof obj2 === "object") {
-			resolve(obj2);
-		} else {
-			reject("Failed to parse the file.");
-		}
-	})
-}
-async function handleFileSelection() {
-	try {
-		var file = await promptForFile();
-		console.log("file ".concat(file).concat(" selected."));
-		var reader = new FileReader();
-		reader.addEventListener('load', readFile);
-		reader.readAsText(file);
-		var obj = JSON.parse(reader.result);
-		//console.log(obj);
-		console.log(await promptForJson(reader));
-		debugger;
+importInput.addEventListener("change", () => {
+	if (importInput.files.length > 0) {
+		parseInputFile();
 	}
-	catch (error){
-		console.log(error);
-	}
-}
-function previewFile() {
-	var file = importInput.files[0];
-	// Here we need to wait until file gets selected otherwise programm is not going to execute properly.
-	var reader = new FileReader();
-	reader.addEventListener('load', readFile);
-	reader.readAsText(file);
-	var obj = JSON.parse(reader.result);
-	console.log(obj);
-	debugger;
-}
-//importInput.addEventListener('change', handleFileSelection);
+})
 
 function invokeImportWindow() {
-	var importInput = document.getElementById("importInputID");
-	handleFileSelection();
+	importInput.click();
+}
+
+function parseInputFile() {
+	let reader = new FileReader();
+	reader.readAsText(importInput.files[0]);
+	reader.onload = function() {
+		var obj = JSON.parse(reader.result);
+		for (let i = 0; i < obj.todos.length; i++) { 
+			console.log(obj.todos[i]);
+		}
+	}
 }
