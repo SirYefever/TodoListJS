@@ -10,7 +10,7 @@ class Todo {
 	constructor(name, done) {
 		this.name = name;
 		this.number = todoCounter;
-		this.done = false;
+		this.done = done;
 	}
 	
 	add(){
@@ -34,12 +34,18 @@ class Todo {
 	}
 } 
 
-function addTodo(){
-	todoCounter += 1;
+function addTodoManually() {
 	// window.promt is not available in Node.js so for now we'll keep it simple way
 	let name = "Todo ".concat(todoCounter.toString());
 	//let name = window.promt("Enter the name: ", "Todo".concat(toStirng(todoCounter)));
-	let todo = new Todo(name, todoCounter);
+	addTodo(name, todoCounter, false);
+}
+
+
+function addTodo(name, number, done){
+	todoCounter += 1;
+	// window.promt is not available in Node.js so for now we'll keep it simple way
+	let todo = new Todo(name, done);
 	todoList[todoList.length] = todo;
 	let li = "<li id=\"li" + todoCounter.toString() + "\"><span id=\"span" + todoCounter.toString() + "\">" +
 				   name + "</span><button id=\"deleteButton" + todoCounter.toString() +
@@ -86,7 +92,7 @@ function remove(todoNumber) {
 let todoUL = document.getElementById("todoUL");
 
 let addButton = document.getElementById("addTodoButton");
-addButton.addEventListener("click", () => addTodo());
+addButton.addEventListener("click", () => addTodoManually());
 
 let importInput = document.getElementById("importInputID");
 importInput.addEventListener("change", () => {
@@ -103,9 +109,9 @@ function parseInputFile() {
 	let reader = new FileReader();
 	reader.readAsText(importInput.files[0]);
 	reader.onload = function() {
-		var obj = JSON.parse(reader.result);
-		for (let i = 0; i < obj.todos.length; i++) { 
-			console.log(obj.todos[i]);
+		var todoArray = JSON.parse(reader.result).todos;
+		for (let i = 0; i < todoArray.length; i++) { 
+			addTodo(todoArray[i].name, todoArray[i].done);
 		}
 	}
 }
