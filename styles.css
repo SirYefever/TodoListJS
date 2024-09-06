@@ -17,7 +17,7 @@ header {
 #todoListDiv {
 	border-style: none solid solid solid;
 	width: 50%;
-	height: 600px;
+	height: 700px;
 	bottom: 17px;
 	margin: auto;
 	position: relative;
@@ -27,12 +27,6 @@ header {
 }
 #todoUL {
 	list-style-type: none;
-}
-#addTodoButton{
-	position: relative;
-	left: 1350px;
-	padding: 10px 17px;
-	font-size: 30px;
 }
 .deleteButton {
 	position: fixed;
@@ -45,4 +39,20 @@ redactButton {
 .checkBox {
 	position: fixed;
 	left: 1040;
+}
+#importButton {
+	margin-left: 29%;
+	width: 200px;
+	height: 40px;
+}
+#exportButton {
+	margin-left: 5%;
+	width: 200px;
+	height: 40px;
+}
+#addTodoButton{
+	margin-left: 5%;
+	padding: 10px 17px;
+	width: 200px;
+	height: 40px;
 }

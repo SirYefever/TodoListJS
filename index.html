@@ -16,7 +16,11 @@
 				</ul>
 			</div>
 			<div id="addButtonDiv">
-				<button id="addTodoButton" type="button">+</button> 
+				<input id="importInputID" type="file" style="display:none;" />
+				<input type="button" id="importButton" accept=".json" value="Import JSON" onclick="invokeImportWindow();" />
+				<input id="exportInput" type="file" style="display:none;" />
+				<input type="button" id="exportButton" accept=".json" value="Export JSON" onclick="testingOnClick();" />
+				<button id="addTodoButton" type="button">Add Todo</button> 
 				<script src="./app.js"></script>
 			</div>
 		</main>

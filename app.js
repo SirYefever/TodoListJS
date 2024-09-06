@@ -52,7 +52,7 @@ function addTodo(){
 	//else
 	//li += ""
 	// Class atribute does not word fsr
-	li = li.concat(" class=\"checkBox\" onchange=\"updateDoneCounter();\"/></li>");
+	li = li.concat(" class=\"checkBox\" onchange=\"updateDoneCounter()\"/></li>");
 	todoUL.insertAdjacentHTML("beforeend", li);
 }
 
@@ -75,7 +75,11 @@ function updateDoneCounter() {
 }
 
 function remove(todoNumber) {
-	todoList.splice(todoList.find((element) => element.number === todoNumber));
+	for (let i = 0; i < todoList.length; i++) {
+		if (todoList[i].number === todoNumber) {
+			todoList.splice(i, 1);
+		}
+	}
 	todoUL.removeChild(document.getElementById("li" + todoNumber.toString()));
 }
 
@@ -83,3 +87,27 @@ let todoUL = document.getElementById("todoUL");
 
 let addButton = document.getElementById("addTodoButton");
 addButton.addEventListener("click", () => addTodo());
+
+let importInput = document.getElementById("importInputID");
+function readFile(event) { 
+	//console.log(event.target.result);
+	console.log("readFile() running");
+}
+function previewFile() {
+	console.log("previewFile() running");
+	var file = importInput.files[0];
+	console.log("typeof file is ".concat(typeof file));
+	var reader = new FileReader();
+	reader.addEventListener('load', readFile);
+	reader.readAsText(file);
+	console.log(reader.result);
+	var obj = JSON.parse(reader.result);
+	console.log(obj);
+	debugger;
+}
+importInput.addEventListener('change', previewFile);
+
+function invokeImportWindow() {
+	document.getElementById("importInputID").click();
+	previewFile();
+}
