@@ -12,12 +12,11 @@
 	</head>
 	<body>
 		<header>
-			<h1>Your Daily Dose of Task Management</h1>
+			<h1>YOUR Daily Dose of Task Management</h1>
 		</header>
 		<main id="mainElement">
 			<div id="todoListDiv">
-				<ul id="todoUL">
-				</ul>
+			<p id="noTasksMessage">It's time to add some new tasks!</p>
 			</div>
 			<div id="addButtonDiv">
 				<input id="importInputID" type="file" style="display:none;" />
@@ -27,8 +26,11 @@
 				<button id="addTodoButton" type="button">Add Todo</button> 
 				<script src="./app.js"></script>
 			</div>
-			<progress id="progressBar" value="0">
-			</progress>
+			<div id="progressDiv">
+				<progress id="progressBar" value="0">
+				</progress>
+			<p id="encouragingMessage"></p>
+			</div>
 		</main>
 	</body>
 </html>
