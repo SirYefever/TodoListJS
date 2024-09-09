@@ -69,7 +69,7 @@ function addTodo(name, done){
 }
 
 function redact(todoNumber) {
-	let newName = window.prompt("Enter the name: ", "Todo".concat(todoIterator.toString()));
+	let newName = window.prompt("Enter the name: ", "New task");
 	let elementToRename = todoList.find((element) => element.number === todoNumber);
 	elementToRename.redactName(newName);
 	let spanElementToRename = document.getElementById("span" + todoNumber.toString());
@@ -200,7 +200,6 @@ function removeNoTasksMessage() {
 }
 
 function displayEncouragingMessage() {
-	let progressDiv = document.getElementById("progressDiv");
 	let messageContents;
 	if (doneCounter === todoCounter && todoCounter != 0) {
 		if (todoCounter < 4 && todoCounter > 1) {
