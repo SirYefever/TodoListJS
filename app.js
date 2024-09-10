@@ -177,9 +177,6 @@ importInput.addEventListener("change", () => {
 	}
 })
 
-let ulDivForTasks = document.getElementById("todoListDiv");
-let noTaskMessage = document.getElementById("noTasksMessage");
-
 function displayNoTasksMessage() {
 	todoUL = document.getElementById("todoUL");
 	ulDivForTasks = document.getElementById("todoListDiv");
@@ -193,9 +190,7 @@ function removeNoTasksMessage() {
 	ulDivForTasks = document.getElementById("todoListDiv");
 	noTaskMessage = document.getElementById("noTasksMessage");
 	ulDivForTasks.removeChild(noTaskMessage);
-	//const ulElement = documnet.createElement("ul");
 	const ulElement = "<ul id=\"todoUL\"></ul>";
-	//ulDivForTasks.appendChild(ulElement);
 	ulDivForTasks.insertAdjacentHTML("beforeend", ulElement);
 }
 
@@ -217,3 +212,6 @@ function displayEncouragingMessage() {
 	let messageElement = document.getElementById("encouragingMessage");
 	messageElement.innerHTML = message;
 }
+
+let ulDivForTasks = document.getElementById("todoListDiv");
+let noTaskMessage = document.getElementById("noTasksMessage");

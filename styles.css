@@ -58,19 +58,18 @@ header {
 }
 #importButton {
 	margin-left: 29%;
-	width: 200px;
+	width: 10%;
 	height: 40px;
 }
 #exportButton {
 	margin-left: 5%;
-	width: 200px;
+	width: 10%;
 	height: 40px;
 }
 #addTodoButton{
 	margin-top: 1%;
 	margin-left: 5%;
-	padding: 10px 17px;
-	width: 200px;
+	width: 10%;
 	height: 40px;
 }
 #progressBar {
