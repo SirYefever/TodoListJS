@@ -196,6 +196,8 @@ function displayEncouragingMessage() {
 	if (doneCounter === todoCounter && todoCounter != 0) {
 		if (todoCounter < 4 && todoCounter > 1) {
 			messageContents = "Good job completing " + todoCounter.toString() + " tasks!";
+		} else if (todoCounter === 1) {
+			messageContents = "Done in one!";
 		} else {
 			messageContents = "You've done all your tasks! Great job!";
 		}
