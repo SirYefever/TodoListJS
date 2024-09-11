@@ -1,7 +1,3 @@
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('Website is ready!');
-});
-
 let todoList = [];
 let todoIterator = 0;
 let todoCounter = 0;
@@ -22,7 +18,7 @@ class Todo {
 } 
 
 function addTodoManually() {
-	let name = "Todo № ".concat(todoIterator.toString());
+	let name = "Todo № ".concat((todoIterator + 1).toString());
 	addTodo(name, false);
 }
 
@@ -69,15 +65,17 @@ function addTodo(name, done){
 }
 
 function redact(todoNumber) {
-	let newName = window.prompt("Enter the name: ", "New task");
 	let elementToRename = todoList.find((element) => element.number === todoNumber);
-	elementToRename.redactName(newName);
-	let spanElementToRename = document.getElementById("span" + todoNumber.toString());
-	if (newName.length > 0) {
-		spanElementToRename.textContent = newName;
-	}
+	let newName = window.prompt("Enter the name: ", elementToRename.name);
+	setTimeout(function() {
+		elementToRename.redactName(newName);
+		let spanElementToRename = document.getElementById("span" + todoNumber.toString());
+		if (newName.length > 0) {
+			spanElementToRename.textContent = newName;
+		}
+	}, 0); 
 }
-// Fix the bug that confuses todoCounter and todoNumber or something like that.
+
 function manageCheckboxing(todoNumber) {
 	for (let i = 0; i < todoList.length; i++){
 		if (todoNumber === todoList[i].number) {
@@ -105,6 +103,7 @@ function remove(todoNumber) {
 			todoList.splice(i, 1);
 		}
 	}
+	updateDoneCounter();
 	updateProgressBar();
 	todoUL.removeChild(document.getElementById("li" + todoNumber.toString()));
 	if (todoCounter === 0) {
@@ -120,7 +119,6 @@ function parseInputFile() {
 	let reader = new FileReader();
 	reader.readAsText(importInput.files[0]);
 	reader.onload = function() {
-		console.log("ONLOAD FIRED");
 		var todoArray = JSON.parse(reader.result);
 		for (let i = 0; i < todoArray.length; i++) { 
 			addTodo(todoArray[i].name, todoArray[i].done);
@@ -134,12 +132,11 @@ function exportJson() {
 }
 
 //https://stackoverflow.com/questions/13405129/create-and-save-a-file-with-javascript
-// Function to download data to a file
 function download(data, filename, type) {
     var file = new Blob([data], {type: type});
     if (window.navigator.msSaveOrOpenBlob)
         window.navigator.msSaveOrOpenBlob(file, filename);
-    else { // Others
+    else { 
         var a = document.createElement("a"),
                 url = URL.createObjectURL(file);
         a.href = url;
