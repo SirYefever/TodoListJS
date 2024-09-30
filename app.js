@@ -1,15 +1,6 @@
 let todoList = [];
 let todoIterator = 0;
-let todoCounter = 0;
 let doneCounter = 0;
-
-class Todo {
-	constructor(Name, Done) {
-		this.name = Name;
-		this.id = todoIterator;
-		this.isComplete = Done;
-	}
-} 
 
 async function addTodoManually() {
 	let name = "Todo № ".concat((todoIterator + 1).toString());
@@ -22,7 +13,6 @@ async function addTodoManually() {
 
 async function getTodoListFromDb() {
 	todoIterator = 0;
-	todoCounter = 0;
 	let url = "http://localhost:5260/GetTodoList";
 	let response = await fetch(url);
 	if (response.ok) {
@@ -55,10 +45,6 @@ async function postTodo(data) {
 
 function displayTodo(todo) {
 	todoIterator++;
-	todoCounter++;
-	if (todo.isComplete) {
-
-	}
 	if (document.getElementById("noTasksMessage") != null) {
 		removeNoTasksMessage();
 	}
@@ -138,6 +124,16 @@ async function manageCheckboxing(id) {
 	}
 }
 
+async function getTodoCounter() {
+	let url = "http://localhost:5260/GetTodoCounter";
+	let response = await fetch(url);
+
+	if (response.ok) {
+		let json = await response.json();
+		return json;
+	}
+}
+
 async function updateDoneCounter() {
 	let url = "http://localhost:5260/GetDoneCounter";
 	let response = await fetch(url);
@@ -167,7 +163,7 @@ async function remove(id) {
 	catch(error) {
 		console.error("Error: ", error);
 	}
-	if (todoCounter === 0) {
+	if (update === 0) {
 		displayNoTasksMessage();
 	}
 }
@@ -176,8 +172,9 @@ function invokeImportWindow() {
 	getTodoListFromDb();
 }
 
-function updateProgressBar() {
+async function updateProgressBar() {
 	let progressBar = document.getElementById("progressBar");
+	let todoCounter = await getTodoCounter();
 	if (todoCounter === 0) {
 		progressBar.value = 0;
 		displayEncouragingMessage();
@@ -210,8 +207,9 @@ function removeNoTasksMessage() {
 	ulDivForTasks.insertAdjacentHTML("beforeend", ulElement);
 }
 
-function displayEncouragingMessage() {
+async function displayEncouragingMessage() {
 	let messageContents;
+	var todoCounter = await getTodoCounter();
 	if (doneCounter === todoCounter && todoCounter != 0) {
 		if (todoCounter < 4 && todoCounter > 1) {
 			messageContents = "Good job completing " + todoCounter.toString() + " tasks!";
