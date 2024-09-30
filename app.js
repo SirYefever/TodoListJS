@@ -34,7 +34,7 @@ async function getTodoListFromDb() {
 		console.log("getTodoList response: ", json);
 		json.forEach(element => {
 			// addTodo(element.name, element.isComplete);
-			displayTodo(todoIterator);
+			displayTodo(element);
 		});
 	} else {
 		alert("Ошибка HTTP: " + response.status);
@@ -68,20 +68,20 @@ function displayTodo(todo) {
 	todoList[todoList.length] = todo;
 
 	let constructSpan = function() {
-		return "<span id=\"span" + todoIterator.toString() + "\" class=\"spanCalss\">" + name + "</span>";
+		return "<span id=\"span" + todo.id + "\" class=\"spanCalss\">" + todo.name + "</span>";
 	}
-	let constructDeleteButton = function() { return "<button id=\"deleteButton" + todoIterator.toString() +
+	let constructDeleteButton = function() { return "<button id=\"deleteButton" + todo.id.toString() +
 					 "\" class=\"deleteButton\" onclick=\"remove(" + 
-					 todoIterator.toString() + ")\">🗑️</button>";
+					 todo.id.toString() + ")\">🗑️</button>";
 	}
 	let constructRedactButton = function() {
-		return "<button id=\"redactButton" + todoIterator.toString() +
-					 "\" class=\"redactButton\" onclick=\"redact(" + todoIterator.toString() + ")\">✏️</button>";
+		return "<button id=\"redactButton" + todo.id +
+					 "\" class=\"redactButton\" onclick=\"redact(" + todo.id + ")\">✏️</button>";
 	}
 	let constructCheckbox = function() {
-		let result =  "<input id=\"checkbox" + todoIterator.toString() +
-					 "\" type=\"checkbox\" class=\"checkBox\" onchange=\"manageCheckboxing(" + todoIterator + ")\"";
-		if (done) { 
+		let result =  "<input id=\"checkbox" + todo.id.toString() +
+					 "\" type=\"checkbox\" class=\"checkBox\" onchange=\"manageCheckboxing(" + todo.id + ")\"";
+		if (todo.isComplete) { 
 			result += " checked>";
 			doneCounter++;
 		} else {
@@ -90,7 +90,7 @@ function displayTodo(todo) {
 		return result;
 	}
 	let constructLi = function() {
-		return "<li class=\"liClass\" id=\"li" + todoIterator.toString() + "\">" + 
+		return "<li class=\"liClass\" id=\"li" + todo.id.toString() + "\">" + 
 				  	constructCheckbox() + constructSpan() + 
 				    constructRedactButton() + constructDeleteButton() + "</li>";
 	}
@@ -105,22 +105,39 @@ function addTodo(){
 	updateProgressBar();
 }
 
-function redact(todoNumber) {
-	let elementToRename = todoList.find((element) => element.number === todoNumber);
-	let newName = window.prompt("Enter the name: ", elementToRename.name);
+async function redact(todoNumber) {
+	var elementToRename = todoList.find((element) => element.id === todoNumber);
+	var newName = window.prompt("Enter the name: ", elementToRename.name);
 	setTimeout(function() {
-		elementToRename.redactName(newName);
-		let spanElementToRename = document.getElementById("span" + todoNumber.toString());
+		elementToRename.name = newName;
+		let spanElementToRename = document.getElementById("span" + todoNumber);
 		if (newName.length > 0) {
 			spanElementToRename.textContent = newName;
 		}
 	}, 0); 
+	//Create PUT query
+	let data = {
+		name: newName,
+		isComplete: todoList[todoNumber].isComplete
+	}
+	try {
+		await fetch('http://localhost:5260/RedactTodoItem/' + todoNumber.toString() , {
+			method: 'PUT',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify(data)
+		});
+	}
+	catch(error) {
+		console.error("Error: ", error);
+		}
 }
 
 function manageCheckboxing(todoNumber) {
 	for (let i = 0; i < todoList.length; i++){
 		if (todoNumber === todoList[i].number) {
-			todoList[i].done = !todoList[i].done;
+			todoList[i].isComplete = !todoList[i].isComplete;
 		}
 	}
 	updateDoneCounter();
@@ -129,7 +146,7 @@ function manageCheckboxing(todoNumber) {
 function updateDoneCounter() {
 	doneCounter = 0;
 	for (let i = 0; i < todoList.length; i++) {
-		if (todoList[i].done) {
+		if (todoList[i].isComplete) {
 			doneCounter++;
 		}
 	}
