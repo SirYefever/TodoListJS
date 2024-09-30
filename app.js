@@ -4,10 +4,10 @@ let todoCounter = 0;
 let doneCounter = 0;
 
 class Todo {
-	constructor(name, done) {
-		this.name = name;
+	constructor(Name, Done) {
+		this.name = Name;
 		this.id = todoIterator;
-		this.isComplete = done;
+		this.isComplete = Done;
 	}
 
 	redactName(newName){
@@ -19,16 +19,23 @@ class Todo {
 
 function addTodoManually() {
 	let name = "Todo № ".concat((todoIterator + 1).toString());
-	addTodo(name, false);
+	postTodo({
+		name: name,
+		isComplete: false
+	});
+	addTodo();
 }
 
 async function getTodoListFromDb() {
 	let url = "http://localhost:5260/GetTodoList";
 	let response = await fetch(url);
-	if (response.ok) { // если HTTP-статус в диапазоне 200-299
-		// получаем тело ответа (см. про этот метод ниже)
+	if (response.ok) {
 		let json = await response.json();
-		console.log(json);
+		console.log("getTodoList response: ", json);
+		json.forEach(element => {
+			// addTodo(element.name, element.isComplete);
+			displayTodo(todoIterator);
+		});
 	} else {
 		alert("Ошибка HTTP: " + response.status);
 	}
@@ -52,17 +59,12 @@ async function postTodo(data) {
 	}
 }
 
-function addTodo(name, done){
+function displayTodo(todo) {
 	todoIterator++;
 	todoCounter++;
-	postTodo({
-		name: name,
-		"isComplete": done
-	});
 	if (document.getElementById("noTasksMessage") != null) {
 		removeNoTasksMessage();
 	}
-	let todo = new Todo(name, done);
 	todoList[todoList.length] = todo;
 
 	let constructSpan = function() {
@@ -95,6 +97,11 @@ function addTodo(name, done){
 	let li = constructLi();
 	todoUL = document.getElementById("todoUL");
 	todoUL.insertAdjacentHTML("beforeend", li);
+
+}
+
+function addTodo(){
+	displayTodo();
 	updateProgressBar();
 }
 
@@ -151,7 +158,8 @@ function remove(todoNumber, id) {
 }
 
 function invokeImportWindow() {
-	importInput.click();
+	getTodoListFromDb();
+	// importInput.click();
 }
 
 function parseInputFile() {
@@ -160,14 +168,13 @@ function parseInputFile() {
 	reader.onload = function() {
 		var todoArray = JSON.parse(reader.result);
 		for (let i = 0; i < todoArray.length; i++) { 
-			addTodo(todoArray[i].name, todoArray[i].done);
+			addTodo(todoArray[i].name, todoArray[i].isComplete);
 		}
 	}
 	updateProgressBar();
 }
 
 function exportJson() {
-	getTodoListFromDb();
 	download(JSON.stringify(todoList), "TodoList", "application/json");
 }
 
@@ -251,6 +258,10 @@ function displayEncouragingMessage() {
 	let messageElement = document.getElementById("encouragingMessage");
 	messageElement.innerHTML = message;
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+	invokeImportWindow();
+});
 
 let ulDivForTasks = document.getElementById("todoListDiv");
 let noTaskMessage = document.getElementById("noTasksMessage");
