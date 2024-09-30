@@ -56,21 +56,11 @@ header {
 .spanClass {
 	position: relative;
 }
-#importButton {
-	margin-left: 29%;
-	width: 10%;
-	height: 40px;
-}
-#exportButton {
-	margin-left: 5%;
-	width: 10%;
-	height: 40px;
-}
 #addTodoButton{
-	margin-top: 1%;
-	margin-left: 5%;
+	margin-left: 45%;
 	width: 10%;
 	height: 40px;
+	margin-top: 1%;
 }
 #progressBar {
 	margin-left: 35%;

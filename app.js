@@ -1,10 +1,3 @@
-
-async function getTodoList() {
-	let url = "http://localhost:5260/GetTodoList";
-	let response = await fetch(url);
-	if (response.ok) {
-	}
-}
 let todoList = [];
 let todoIterator = 0;
 let todoCounter = 0;
@@ -15,12 +8,6 @@ class Todo {
 		this.name = Name;
 		this.id = todoIterator;
 		this.isComplete = Done;
-	}
-
-	redactName(newName){
-		if (!(newName === "")) {
-			this.name = newName;
-		}
 	}
 } 
 
@@ -187,42 +174,6 @@ async function remove(id) {
 
 function invokeImportWindow() {
 	getTodoListFromDb();
-	// importInput.click();
-}
-
-function parseInputFile() {
-	let reader = new FileReader();
-	reader.readAsText(importInput.files[0]);
-	reader.onload = function() {
-		var todoArray = JSON.parse(reader.result);
-		for (let i = 0; i < todoArray.length; i++) { 
-			addTodo(todoArray[i].name, todoArray[i].isComplete);
-		}
-	}
-	updateProgressBar();
-}
-
-function exportJson() {
-	download(JSON.stringify(todoList), "TodoList", "application/json");
-}
-
-//https://stackoverflow.com/questions/13405129/create-and-save-a-file-with-javascript
-function download(data, filename, type) {
-	var file = new Blob([data], {type: type});
-	if (window.navigator.msSaveOrOpenBlob)
-		window.navigator.msSaveOrOpenBlob(file, filename);
-		else { 
-			var a = document.createElement("a"),
-			url = URL.createObjectURL(file);
-			a.href = url;
-			a.download = filename;
-			document.body.appendChild(a);
-			a.click();
-			setTimeout(function() {
-				document.body.removeChild(a);
-				window.URL.revokeObjectURL(url);  
-			}, 0); 
-		}
 }
 
 function updateProgressBar() {
@@ -241,13 +192,6 @@ let todoUL = document.getElementById("todoUL");
 
 let addButton = document.getElementById("addTodoButton");
 addButton.addEventListener("click", () => addTodoManually());
-
-let importInput = document.getElementById("importInputID");
-importInput.addEventListener("change", () => {
-	if (importInput.files.length > 0) {
-		parseInputFile();
-	}
-})
 
 function displayNoTasksMessage() {
 	todoUL = document.getElementById("todoUL");
