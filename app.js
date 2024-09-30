@@ -1,3 +1,10 @@
+
+async function getTodoList() {
+	let url = "http://localhost:5260/GetTodoList";
+	let response = await fetch(url);
+	if (response.ok) {
+	}
+}
 let todoList = [];
 let todoIterator = 0;
 let todoCounter = 0;
@@ -17,32 +24,33 @@ class Todo {
 	}
 } 
 
-function addTodoManually() {
+async function addTodoManually() {
 	let name = "Todo № ".concat((todoIterator + 1).toString());
-	postTodo({
+	await postTodo({
 		name: name,
 		isComplete: false
 	});
-	addTodo();
+	getTodoListFromDb();
 }
 
 async function getTodoListFromDb() {
+	todoIterator = 0;
+	todoCounter = 0;
 	let url = "http://localhost:5260/GetTodoList";
 	let response = await fetch(url);
 	if (response.ok) {
 		let json = await response.json();
-		console.log("getTodoList response: ", json);
+		clearPage();
 		json.forEach(element => {
-			// addTodo(element.name, element.isComplete);
 			displayTodo(element);
 		});
+		await updateDoneCounter();
 	} else {
 		alert("Ошибка HTTP: " + response.status);
 	}
 }
 
 async function postTodo(data) {
-	console.log(JSON.stringify(data));
 	try {
 		const response = await fetch('http://localhost:5260/AddTodo', {
 			method: 'POST',
@@ -52,7 +60,6 @@ async function postTodo(data) {
 			body: JSON.stringify(data)
 		});
 		let result = await response.json();
-		console.log(result);
 	}
 	catch(error) {
 		console.error("Error: ", error);
@@ -62,6 +69,9 @@ async function postTodo(data) {
 function displayTodo(todo) {
 	todoIterator++;
 	todoCounter++;
+	if (todo.isComplete) {
+
+	}
 	if (document.getElementById("noTasksMessage") != null) {
 		removeNoTasksMessage();
 	}
@@ -71,19 +81,18 @@ function displayTodo(todo) {
 		return "<span id=\"span" + todo.id + "\" class=\"spanCalss\">" + todo.name + "</span>";
 	}
 	let constructDeleteButton = function() { return "<button id=\"deleteButton" + todo.id.toString() +
-					 "\" class=\"deleteButton\" onclick=\"remove(" + 
-					 todo.id.toString() + ")\">🗑️</button>";
+		"\" class=\"deleteButton\" onclick=\"remove(" + 
+		todo.id.toString() + ")\">🗑️</button>";
 	}
 	let constructRedactButton = function() {
 		return "<button id=\"redactButton" + todo.id +
-					 "\" class=\"redactButton\" onclick=\"redact(" + todo.id + ")\">✏️</button>";
+			"\" class=\"redactButton\" onclick=\"redact(" + todo.id + ")\">✏️</button>";
 	}
 	let constructCheckbox = function() {
 		let result =  "<input id=\"checkbox" + todo.id.toString() +
-					 "\" type=\"checkbox\" class=\"checkBox\" onchange=\"manageCheckboxing(" + todo.id + ")\"";
+			"\" type=\"checkbox\" class=\"checkBox\" onchange=\"manageCheckboxing(" + todo.id + ")\"";
 		if (todo.isComplete) { 
 			result += " checked>";
-			doneCounter++;
 		} else {
 			result += ">";
 		}
@@ -91,19 +100,14 @@ function displayTodo(todo) {
 	}
 	let constructLi = function() {
 		return "<li class=\"liClass\" id=\"li" + todo.id.toString() + "\">" + 
-				  	constructCheckbox() + constructSpan() + 
-				    constructRedactButton() + constructDeleteButton() + "</li>";
+			constructCheckbox() + constructSpan() + 
+			constructRedactButton() + constructDeleteButton() + "</li>";
 	}
 	let li = constructLi();
 	todoUL = document.getElementById("todoUL");
 	todoUL.insertAdjacentHTML("beforeend", li);
-
 }
 
-function addTodo(){
-	displayTodo();
-	updateProgressBar();
-}
 
 async function redact(todoNumber) {
 	var elementToRename = todoList.find((element) => element.id === todoNumber);
@@ -131,40 +135,47 @@ async function redact(todoNumber) {
 	}
 	catch(error) {
 		console.error("Error: ", error);
-		}
-}
-
-function manageCheckboxing(todoNumber) {
-	for (let i = 0; i < todoList.length; i++){
-		if (todoNumber === todoList[i].number) {
-			todoList[i].isComplete = !todoList[i].isComplete;
-		}
 	}
-	updateDoneCounter();
 }
 
-function updateDoneCounter() {
-	doneCounter = 0;
-	for (let i = 0; i < todoList.length; i++) {
-		if (todoList[i].isComplete) {
-			doneCounter++;
-		}
-	}
-	updateProgressBar();
-}
-
-function remove(todoNumber, id) {
-	let todoUl = document.getElementById(id);
+async function manageCheckboxing(id) {
 	try {
-		let todoIndex = todoList.findIndex(todo => todo.id === id);
-		todoList.splice(todoIndex);
-		if (todoList[todoIndex].isDone) {
-			doneCounter--;
-		}
-		todoCounter--;
-		//updateDoneCounter();
+		let url = "http://localhost:5260/ChangeCompleteStatus/" + id;
+		await fetch(url, {
+			method: 'PUT'
+		});
+		getTodoListFromDb();
+	}
+	catch(error){
+		console.error(error);
+	}
+}
+
+async function updateDoneCounter() {
+	let url = "http://localhost:5260/GetDoneCounter";
+	let response = await fetch(url);
+
+	if (response.ok) {
+		let json = await response.json();
+		doneCounter = json;
 		updateProgressBar();
-		todoUl.remove();
+	}
+}
+
+async function remove(id) {
+	//##########################################################
+	try {
+		await fetch('http://localhost:5260/DeleteTodo/' + id, {
+			method: 'DELETE'
+		});
+		getTodoListFromDb();
+	}
+	catch(error) {
+		console.error("Error: ", error);
+	}
+	//##########################################################
+	try {
+		await updateDoneCounter();
 	}
 	catch(error) {
 		console.error("Error: ", error);
@@ -197,21 +208,21 @@ function exportJson() {
 
 //https://stackoverflow.com/questions/13405129/create-and-save-a-file-with-javascript
 function download(data, filename, type) {
-    var file = new Blob([data], {type: type});
-    if (window.navigator.msSaveOrOpenBlob)
-        window.navigator.msSaveOrOpenBlob(file, filename);
-    else { 
-        var a = document.createElement("a"),
-                url = URL.createObjectURL(file);
-        a.href = url;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        setTimeout(function() {
-            document.body.removeChild(a);
-            window.URL.revokeObjectURL(url);  
-        }, 0); 
-    }
+	var file = new Blob([data], {type: type});
+	if (window.navigator.msSaveOrOpenBlob)
+		window.navigator.msSaveOrOpenBlob(file, filename);
+		else { 
+			var a = document.createElement("a"),
+			url = URL.createObjectURL(file);
+			a.href = url;
+			a.download = filename;
+			document.body.appendChild(a);
+			a.click();
+			setTimeout(function() {
+				document.body.removeChild(a);
+				window.URL.revokeObjectURL(url);  
+			}, 0); 
+		}
 }
 
 function updateProgressBar() {
@@ -274,6 +285,10 @@ function displayEncouragingMessage() {
 	let message = "<p id=\"congratulationsMessage\">" + messageContents + "</p>";
 	let messageElement = document.getElementById("encouragingMessage");
 	messageElement.innerHTML = message;
+}
+
+async function clearPage(){
+	todoUL.innerHTML = '';
 }
 
 document.addEventListener('DOMContentLoaded', function() {
