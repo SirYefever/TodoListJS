@@ -4,10 +4,11 @@ let doneCounter = 0;
 
 async function addTodoManually() {
 	let name = "Todo № ".concat((todoIterator + 1).toString());
-	await postTodo({
-		name: name,
-		isComplete: false
-	});
+//await postTodo({
+//	name: name,
+//	isComplete: false
+//}, name, false);
+	await addItem(name, false)
 	getTodoListFromDb();
 }
 
@@ -27,14 +28,51 @@ async function getTodoListFromDb() {
 	}
 }
 
-async function postTodo(data) {
+async function addItem(name, isComplete) {
+	const url = "http://localhost:5260/AddTodo";
+
+	const data = {
+		name: name,
+		isComplete: isComplete
+	};
+
 	try {
-		const response = await fetch('http://localhost:5260/AddTodo', {
+		const response = await fetch(url, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'
 			},
 			body: JSON.stringify(data)
+		});
+
+		if (!response.ok) {
+			throw new Error(`HTTP error! status: ${response.status}`);
+		}
+
+	} catch (error) {
+		console.error('Error adding item:', error);
+		throw error;
+	}
+}
+
+async function postTodo(data, name, isComplete) {
+	const baseUrl = "http://localhost:5260/AddTodo?"
+	const encodedObj = turnIntoQueryString(data)
+	const queryWithEncodedUri = baseUrl + encodedObj
+	console.log("fixedEncodedUriComponen:   " + queryWithEncodedUri)
+	//const params = new URLSearchParams(data).toString();
+	//console.log(params);
+	//const encodedParams = encodeURIComponent(params)
+	//const fullUrl = 'http://localhost:5260/AddTodo?' + encodedParams;
+	try {
+		//		const response = await fetch(new URLSearchParams(queryWithEncodedUri));
+		const response = await fetch('http://localhost:5260/AddTodo', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/x-www-form-urlencoded'
+				//'Content-Type': 'application/json'
+			},
+			body: queryWithEncodedUri
 		});
 		let result = await response.json();
 	}
@@ -83,6 +121,7 @@ function displayTodo(todo) {
 
 
 async function redact(todoNumber) {
+	//TODO change behaviour when redaction get canceled
 	var elementToRename = todoList.find((element) => element.id === todoNumber);
 	var newName = window.prompt("Enter the name: ", elementToRename.name);
 	setTimeout(function() {
@@ -92,13 +131,37 @@ async function redact(todoNumber) {
 			spanElementToRename.textContent = newName;
 		}
 	}, 0); 
-	//Create PUT query
+	/////////////////////////////////////////////
+	//const params = new URLSearchParams();
+	//  params.append('id', todoNumber);
+	//  params.append('newName', newName);
+	//let data = {
+	//	id: todoNumber,
+	//	newName: newName
+	//}
+	//const params = new URLSearchParams(data).toString();
+	//console.log(params);
+	//
+	//let url = 'http://localhost:5260/ChangeTodoName/' + todoNumber.toString();
+	//try {
+	//	const response = await fetch(url, {
+	//		method: "PUT", // Specify the method
+	//		headers: {
+	//			"Content-Type": "application/json" // Set content type for form data
+	//		},
+	//		body: JSON.stringify(data)
+	//	});
+	//}
+	//catch(error){
+	//	console.error("Error: ", error);
+	//}
+	/////////////////////////////////////////////
 	let data = {
 		name: newName,
-		isComplete: todoList[todoNumber].isComplete
+		isComplete: elementToRename.isComplete
 	}
 	try {
-		await fetch('http://localhost:5260/RedactTodoItem/' + todoNumber.toString() , {
+		await fetch('http://localhost:5260/ChangeTodoName/' + todoNumber.toString() , {
 			method: 'PUT',
 			headers: {
 				'Content-Type': 'application/json'
@@ -146,7 +209,6 @@ async function updateDoneCounter() {
 }
 
 async function remove(id) {
-	//##########################################################
 	try {
 		await fetch('http://localhost:5260/DeleteTodo/' + id, {
 			method: 'DELETE'
@@ -156,14 +218,14 @@ async function remove(id) {
 	catch(error) {
 		console.error("Error: ", error);
 	}
-	//##########################################################
 	try {
 		await updateDoneCounter();
 	}
 	catch(error) {
 		console.error("Error: ", error);
 	}
-	if (update === 0) {
+	let todoCounter = await getTodoCounter();
+	if (todoCounter === 0) {
 		displayNoTasksMessage();
 	}
 }
